@@ -1,3 +1,5 @@
+[English README (英文文档)](./README.md)
+
 # envFileX - VS Code 扩展（中文）
 
 envFileX 是一个 VSCode 扩展，允许你在 launch.json 中通过 envFileX 字段将多个 env 文件灵活注入环境变量，也可对每个 env 文件进行额外的脚本处理后注入，也可以直接通过执行脚本向程序注入环境变量。支持多语言调试（Java、Node.js、Python），并具备多文件、命令脚本、占位符替换等高级特性。

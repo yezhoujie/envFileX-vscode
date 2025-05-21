@@ -1,3 +1,5 @@
+[中文文档 (Chinese README)](./README-zh_CN.md)
+
 # envFileX - VS Code Extension
 
 envFileX is a VSCode extension that allows you to flexibly inject environment variables into your debug process via the `envFileX` field in launch.json. You can merge multiple env files, process each env file with a custom script, or inject env variables directly from a script. Supports multi-language debugging (Java, Node.js, Python) and advanced features like multi-file, command scripts, and placeholder replacement.
