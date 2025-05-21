@@ -1,0 +1,10 @@
+{
+  "envFileX.envFile.string.description": "Path to the environment variable file (string)",
+  "envFileX.envFile.string.markdownDescription": "Specify a single .env file path. Supports VSCode variables like ${workspaceFolder}.",
+  "envFileX.envFile.array.description": "Paths to multiple environment variable files (array)",
+  "envFileX.envFile.array.markdownDescription": "Specify multiple .env file paths as an array. Later files override earlier ones. Supports VSCode variables.",
+  "envFileX.envFileX.description": "Advanced environment variable injection (envFileX)",
+  "envFileX.envFileX.markdownDescription": "Flexible environment variable injection supporting multiple files, command output, placeholders, and more.",
+  "envFileX.command.description": "Command to generate environment variables",
+  "envFileX.command.markdownDescription": "Shell command or script path to output environment variables. Supports inline script or file path, and VSCode variables."
+}

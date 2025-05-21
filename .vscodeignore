@@ -1,0 +1,14 @@
+.vscode/**
+.gitignore
+**/tsconfig.json
+**/.eslintrc.json
+**/*.map
+**/*.ts
+.yarnrc
+**/yarn.lock
+node_modules
+examples/**
+src/**
+.github/**
+out/test/**
+**/*.vsix

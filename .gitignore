@@ -1,0 +1,43 @@
+# Node
+node_modules/
+
+# VSCode
+.vscode/
+
+# TypeScript
+*.tsbuildinfo
+out/
+
+# Build
+*.vsix
+
+# Logs
+*.log
+
+# Examples 产物
+examples/java/bin/
+examples/java/*.class
+
+# MacOS
+.DS_Store
+
+# 其他
+.env*
+*.env*
+
+# 测试
+coverage/
+
+# 旧格式
+.vscode-test/
+
+# 其他忽略
+*.swp
+*.swo
+
+# 允许上传示例源码和脚本
+!examples/*.sh
+!examples/*.env*
+!examples/java/Main.java
+!examples/node/app.js
+!examples/python/app.py
