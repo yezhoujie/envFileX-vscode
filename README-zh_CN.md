@@ -1,12 +1,12 @@
-# envFileX 快速入门
+# envFileX - VS Code 扩展（中文）
 
-本指南帮助你快速上手 envFileX 插件，体验多文件、脚本处理、占位符等高级环境变量注入能力。
+envFileX 是一个 VSCode 扩展，允许你在 launch.json 中通过 envFileX 字段将多个 env 文件灵活注入环境变量，也可对每个 env 文件进行额外的脚本处理后注入，也可以直接通过执行脚本向程序注入环境变量。支持多语言调试（Java、Node.js、Python），并具备多文件、命令脚本、占位符替换等高级特性。
 
 ## 主要功能
 
 - 支持在 launch.json 中通过 envFileX 字段灵活注入环境变量
 - 支持 envFile 多文件合并，后者覆盖前者
-- 支持 command 字段，自定义 shell 脚本，自动识别脚本内容或路径，支持 VSCode 变量和占位符
+- 支持 command 字段，自定义 shell 脚本，来处理 env 文件的解密，远程拉取等操作。自动识别脚本内容或路径，支持 VSCode 变量
 - 支持 ${envFilexFilePath} 占位符自动替换
 - 支持 Java、Node.js、Python（debugpy）多语言调试
 
@@ -39,10 +39,10 @@
 ### 字段说明
 
 - `envFile`：支持字符串或字符串数组，指定一个或多个环境变量文件路径
-- `command`：可选，指定 shell 脚本内容或路径，支持 VSCode 变量和占位符，支持 ${envFilexFilePath} 占位符
-  - 例 1：`decrypt.sh -f ${envFilexFilePath}`，脚本会接收到 envFile 的完整路径
-  - 例 2：`echo "envFilexFilePath=${envFilexFilePath}"`，脚本会输出 envFile 的完整路径
-  - 注意：`${envFilexFilePath}` 仅在 command 中有效
+- `command`：可选，指定 shell 脚本内容或路径，支持 VSCode 变量和占位符, 支持 ${envFilexFilePath} 占位符，${envFilexFilePath}占位符是本插件提供给 command 脚本的 envFile 完整路径参数, 可以在路径或者脚本文件内部使用
+  - 例子 1：`decrypt.sh -f ${envFilexFilePath}`，脚本会接收到 envFile 的完整路径
+  - 例子 2：`echo "envFilexFilePath=${envFilexFilePath}"`，脚本会输出 envFile 的完整路径
+  - 注意：`${envFilexFilePath}` 仅在 command 中有效，envFile 中无效
 
 ### 工作模式
 
@@ -65,7 +65,7 @@ DEBUG=true
 
 - examples/ 目录下包含 Java、Node.js、Python 示例代码和脚本
 - decrypt.sh、generate_env.sh 为环境变量生成/解密脚本
-- examples/launchConfig 文件夹下有 VSCode 的 launch.json 示例配置
+- examples/launchConfig 文件夹下是 VSCode 的 launch.json 示例配置
 
 ## 常见问题
 
@@ -73,14 +73,11 @@ DEBUG=true
 - Java 项目需配置 mainClass、classPaths
 - VSCode 校验警告与插件无关，可忽略
 
-## 调试插件本身
+## 贡献与反馈
 
-1. 按 `F5` 启动调试会话
-2. 在新窗口中打开一个包含示例文件的工作区
-3. 使用示例配置启动调试会话
-4. 查看调试控制台和输出面板中的日志信息
+- 欢迎提交 issue 或 PR
+- GitHub: https://github.com/yezhoujie/envFileX-vscode
 
-## 更多信息
+## License
 
-- 查看 [README.md](README.md) 获取更多信息
-- 有问题或建议? 在 GitHub 上提交 issue
+MIT

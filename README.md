@@ -1,65 +1,83 @@
-# envFileX - VS Code 扩展
+# envFileX - VS Code Extension
 
-这是一个 VSCode 扩展，允许在 launch.json 中配置 envFileX 选项，用于读取环境变量文件并/或执行自定义 shell 脚本来处理环境变量，然后将其注入到调试进程中。
+envFileX is a VSCode extension that allows you to flexibly inject environment variables into your debug process via the `envFileX` field in launch.json. You can merge multiple env files, process each env file with a custom script, or inject env variables directly from a script. Supports multi-language debugging (Java, Node.js, Python) and advanced features like multi-file, command scripts, and placeholder replacement.
 
-## 功能
+## Features
 
-- 从指定的 envFile 文件中读取环境变量
-- 执行自定义 shell 脚本处理环境变量（如解密）
-- 支持 Java、Python 和 Node.js 调试会话
+- Flexibly inject environment variables via `envFileX` in launch.json
+- Support merging multiple env files (array), with later files overriding earlier ones
+- Support `command` field for custom shell scripts (e.g., decryption, remote fetch), auto-detects script content or path, supports VSCode variables
+- Supports `${envFilexFilePath}` placeholder replacement in command
+- Multi-language debugging: Java, Node.js, Python (debugpy)
 
-## 使用方法
+## Supported Languages
 
-在 .vscode/launch.json 中为调试配置添加 `envFileX` 字段：
+- Java
+- Node.js
+- Python
+
+## Quick Start
+
+1. Add the `envFileX` field to your debug configuration in `.vscode/launch.json`:
 
 ```json
 {
-  "version": "0.2.0",
-  "configurations": [
-    {
-      "type": "node", // 或 "java", "python"
-      "request": "launch",
-      "name": "启动程序",
-      "program": "${workspaceFolder}/app.js",
-      "envFileX": {
-        "command": "${workspaceFolder}/decrypt.sh",
-        "envFile": "${workspaceFolder}/.env"
-      }
-    }
-  ]
+  "type": "node", // or "java", "debugpy"
+  "request": "launch",
+  "name": "Start App",
+  "program": "${workspaceFolder}/examples/node/app.js",
+  "envFileX": {
+    "command": "${workspaceFolder}/examples/decrypt.sh -f ${envFilexFilePath}",
+    "envFile": [
+      "${workspaceFolder}/examples/.env.encrypted",
+      "${workspaceFolder}/examples/.env"
+    ]
+  }
 }
 ```
 
-### 参数说明
+### Field Description
 
-- `envFile`: 指定需要读取的环境变量文件路径。可选项，不填写时表明环境变量完全由 command 脚本生成
-- `command`: 指定需要执行的 shell 脚本。可选项
+- `envFile`: string or string array, specify one or more env file paths
+- `command`: optional, shell script content or path, supports VSCode variables and placeholders, especially `${envFilexFilePath}` which is replaced with the full path of the env file for the script
+  - Example 1: `decrypt.sh -f ${envFilexFilePath}` — script receives the full env file path
+  - Example 2: `echo "envFilexFilePath=${envFilexFilePath}"` — script outputs the env file path
+  - Note: `${envFilexFilePath}` is only valid in `command`, not in `envFile`
 
-### 工作模式
+### How It Works
 
-1. 如果未指定 command 但指定了 envFile，扩展将直接读取 envFile 文件内容
-2. 如果未指定 command 且未指定 envFile，扩展不进行任何操作
-3. 如果指定了 command 且指定了 envFile，扩展将执行 command 脚本，并使用 -f 参数传入 envFile 完整文件路径
-4. 如果指定了 command 但未指定 envFile，扩展将执行 command 脚本，不传递任何参数
+1. Only `envFile`: directly read and merge all env files
+2. Only `command`: execute the script, output KEY=VALUE pairs
+3. Both: run command for each envFile, with placeholder replacement
+4. Neither: do nothing
 
-## 环境变量格式
+### Environment Variable Format
 
-无论是通过 envFile 读取还是通过 command 脚本生成，环境变量都应采用标准的 KEY=VALUE 格式：
+Whether from file or script, output must be standard KEY=VALUE lines:
 
 ```
-DATABASE_URL=postgres://user:password@localhost:5432/db
+DB_HOST=localhost
 API_KEY=secret-key
 DEBUG=true
 ```
 
-## 支持的语言
+## Examples
 
-- Java
-- Python
-- Node.js
+- See `examples/` for Java, Node.js, Python sample code and scripts
+- `decrypt.sh`, `generate_env.sh` are sample env scripts
+- `examples/launchConfig` contains sample VSCode launch.json configurations
 
-## 发布说明
+## FAQ
 
-### 0.1.0
+- Python requires 3.9+, specify python path if needed
+- Java configs need `mainClass` and `classPaths`
+- VSCode validation warnings are unrelated to this extension and can be ignored
 
-- 初始版本
+## Contributing
+
+- Issues and PRs welcome!
+- GitHub: https://github.com/yezhoujie/envFileX-vscode
+
+## License
+
+MIT
