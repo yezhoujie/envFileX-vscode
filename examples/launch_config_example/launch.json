@@ -15,16 +15,37 @@
       "name": "NodeJS 示例 - 使用解密脚本",
       "program": "${workspaceFolder}/examples/node/app.js",
       "envFileX": {
+        // linux/macOS
+        // use command combined with envFile
         "command": "${workspaceFolder}/examples/decrypt.sh -f ${envFilexFilePath}",
         "envFile": [
           "${workspaceFolder}/examples/.env.encrypted",
           "${workspaceFolder}/examples/.env"
         ]
+
+        // only use command to get env variables
         // "command": "kms-client decrypt -f ${workspaceFolder}/examples/.env.encrypted"
-        // "command": "kms-client decrypt -f ${envFilexFilePath}",
+        
+        // windows
+        // windows bat command example
+        //  "command": "cmd.exe /C '${workspaceFolder}\\examples\\decrypt.bat' -f ${envFilexFilePath}",
+        //   "envFile": [
+        //   "${workspaceFolder}\\examples\\.env.encrypted",
+        //   "${workspaceFolder}\\examples\\.env"
+        // ]
+
+        // windows powershell command example
+        // "command": "powershell.exe -ExecutionPolicy Bypass -File ${workspaceFolder}\\examples\\decrypt.ps1 -f ${envFilexFilePath}",
+        //   "envFile": [
+        //   "${workspaceFolder}\\examples\\.env.encrypted",
+        //   "${workspaceFolder}\\examples\\.env"
+        // ]
+
+        // windows exe command example
+        // "command": "${workspaceFolder}\\examples\\kms-client.exe -f ${envFilexFilePath}",
         // "envFile": [
-        //   "${workspaceFolder}/examples/.env.encrypted",
-        //   "${workspaceFolder}/examples/.env"
+        //   "${workspaceFolder}\\examples\\.env.encrypted",
+        //   "${workspaceFolder}\\examples\\.env"
         // ]
       }
     },

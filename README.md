@@ -75,6 +75,66 @@ DEBUG=true
 - Java configs need `mainClass` and `classPaths`
 - VSCode validation warnings are unrelated to this extension and can be ignored
 
+## Windows Support
+
+- Fully supports Windows batch (.bat) and PowerShell (.ps1) scripts and executable exe for env decryption/processing.
+- Command line arguments are automatically quoted to avoid syntax errors.
+- Error output is automatically decoded as GBK or UTF-8 to avoid Chinese garbled text.
+- See `examples/decrypt.bat` and `examples/decrypt.ps1` for Windows script samples.
+- Example launch.json configuration for Windows:
+
+```json
+{
+  "type": "node",
+  "request": "launch",
+  "name": "NodeJS Example - Windows .bat",
+  "program": "${workspaceFolder}/examples/node/app.js",
+  "envFileX": {
+    "command": "${workspaceFolder}\\examples\\decrypt.bat -f ${envFilexFilePath}",
+    "envFile": [
+      "${workspaceFolder}\\examples\\.env.encrypted",
+      "${workspaceFolder}\\examples\\.env"
+    ]
+  }
+}
+```
+
+Or use PowerShell:
+
+```json
+{
+  "type": "node",
+  "request": "launch",
+  "name": "NodeJS Example - Windows PowerShell",
+  "program": "${workspaceFolder}/examples/node/app.js",
+  "envFileX": {
+    "command": "powershell.exe -ExecutionPolicy Bypass -File ${workspaceFolder}\\examples\\decrypt.ps1 -f ${envFilexFilePath}",
+    "envFile": [
+      "${workspaceFolder}\\examples\\.env.encrypted",
+      "${workspaceFolder}\\examples\\.env"
+    ]
+  }
+}
+```
+Or user exe: 
+
+```json
+{
+  "type": "node",
+  "request": "launch",
+  "name": "NodeJS 示例 - Windows PowerShell",
+  "program": "${workspaceFolder}/examples/node/app.js",
+  "envFileX": {
+    "command": "${workspaceFolder}\\examples\\kms-client.exe -f ${envFilexFilePath}",
+    "envFile": [
+      "${workspaceFolder}\\examples\\.env.encrypted",
+      "${workspaceFolder}\\examples\\.env"
+    ]
+  }
+}
+
+```
+
 ## Contributing
 
 - Issues and PRs welcome!

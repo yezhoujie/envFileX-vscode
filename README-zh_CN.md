@@ -69,6 +69,67 @@ DEBUG=true
 - decrypt.sh、generate_env.sh 为环境变量生成/解密脚本
 - examples/launch_config_example 文件夹下是 VSCode 的 launch.json 示例配置
 
+## Windows 支持
+
+- 完善支持 Windows 下 .bat 批处理和 PowerShell(.ps1) 脚本以及可执行ext作为解密/处理脚本
+- 命令行参数自动加引号，避免语法错误
+- 错误输出自动尝试 GBK/UTF-8 解码，解决中文乱码
+- 示例脚本见 `examples/decrypt.bat` 和 `examples/decrypt.ps1`
+- Windows 下 launch.json 配置示例：
+
+```json
+{
+  "type": "node",
+  "request": "launch",
+  "name": "NodeJS 示例 - Windows .bat",
+  "program": "${workspaceFolder}/examples/node/app.js",
+  "envFileX": {
+    "command": "${workspaceFolder}\\examples\\decrypt.bat -f ${envFilexFilePath}",
+    "envFile": [
+      "${workspaceFolder}\\examples\\.env.encrypted",
+      "${workspaceFolder}\\examples\\.env"
+    ]
+  }
+}
+```
+
+或使用 PowerShell：
+
+```json
+{
+  "type": "node",
+  "request": "launch",
+  "name": "NodeJS 示例 - Windows PowerShell",
+  "program": "${workspaceFolder}/examples/node/app.js",
+  "envFileX": {
+    "command": "powershell.exe -ExecutionPolicy Bypass -File ${workspaceFolder}\\examples\\decrypt.ps1 -f ${envFilexFilePath}",
+    "envFile": [
+      "${workspaceFolder}\\examples\\.env.encrypted",
+      "${workspaceFolder}\\examples\\.env"
+    ]
+  }
+}
+```
+
+或者使用可执行exe程序：
+
+```json
+{
+  "type": "node",
+  "request": "launch",
+  "name": "NodeJS 示例 - Windows PowerShell",
+  "program": "${workspaceFolder}/examples/node/app.js",
+  "envFileX": {
+    "command": "${workspaceFolder}\\examples\\kms-client.exe -f ${envFilexFilePath}",
+    "envFile": [
+      "${workspaceFolder}\\examples\\.env.encrypted",
+      "${workspaceFolder}\\examples\\.env"
+    ]
+  }
+}
+
+```
+
 ## 常见问题
 
 - Python 需 3.9+，建议指定 python 路径

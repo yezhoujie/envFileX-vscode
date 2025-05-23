@@ -3,6 +3,7 @@ import * as path from "path";
 import * as fs from "fs";
 import { execSync } from "child_process";
 import * as os from "os";
+import * as iconv from "iconv-lite"; // 新增：引入 iconv-lite 以支持 GBK 解码
 
 // 日志输出通道
 let outputChannel: vscode.OutputChannel;
@@ -211,17 +212,30 @@ function executeCommandScript(
             envFilexFilePath
           );
         }
-        const fullCommand =
-          winCommand + (args.length > 0 ? " " + args.join(" ") : "");
-        log(`Windows 下执行命令: ${fullCommand}`);
+        // 拆分 winCommand 以便正确加引号
+        const winCommandParts = winCommand.match(/(?:[^"]\S*|".+?")+/g) || winCommand.split(" ");
+        // const quotedWinCommand = winCommandParts.map(part => part.startsWith('"') ? part : `"${part}"`).join(' ');
+        const fullCommand = `chcp 65001 >nul && ${winCommandParts} ${args.map(arg => `"${arg}"`).join(" ")}`;
+        log(`Windows 下执行命令 (UTF-8 编码): ${fullCommand}`);
         const output = execSync(fullCommand, {
-          encoding: "utf8",
+          encoding: "buffer",
           timeout: 10000,
         });
         log("命令执行成功，开始解析输出");
-        return parseEnvVars(output);
+        return parseEnvVars(output.toString("utf8"));
       } catch (error) {
-        const errMsg = error instanceof Error ? error.message : String(error);
+        // --- 关键：优先用 GBK 解码错误输出 ---
+        let errMsg = "";
+        let stdout = (error as any).stdout;
+        let stderr = (error as any).stderr;
+        try {
+          if (Buffer.isBuffer(stdout)) stdout = stdout.toString("utf8");
+          if (Buffer.isBuffer(stderr)) stderr = stderr.toString("utf8");
+        } catch {
+          if (Buffer.isBuffer(stdout)) stdout = iconv.decode(stdout, "gbk");
+          if (Buffer.isBuffer(stderr)) stderr = iconv.decode(stderr, "gbk");
+        }
+        errMsg = `${error instanceof Error ? error.message : String(error)}\nstdout: ${stdout}\nstderr: ${stderr}`;
         log(`Windows 命令执行失败: ${errMsg}`);
         vscode.window.showErrorMessage(`envFileX (Windows): ${errMsg}`);
         return {};
