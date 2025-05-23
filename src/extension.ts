@@ -199,6 +199,34 @@ function executeCommandScript(
     log(`准备执行脚本内容或脚本路径`);
     // 先做变量替换，支持 VSCode 占位符
     let resolvedScriptOrPath = resolveVariables(scriptOrPath, folder);
+    // Windows 平台特殊处理
+    if (process.platform === "win32") {
+      log("检测到 Windows 平台，直接执行 command");
+      try {
+        // 支持 ${envFilexFilePath} 占位符
+        let winCommand = resolvedScriptOrPath;
+        if (envFilexFilePath) {
+          winCommand = winCommand.replace(
+            /\${envFilexFilePath}/g,
+            envFilexFilePath
+          );
+        }
+        const fullCommand =
+          winCommand + (args.length > 0 ? " " + args.join(" ") : "");
+        log(`Windows 下执行命令: ${fullCommand}`);
+        const output = execSync(fullCommand, {
+          encoding: "utf8",
+          timeout: 10000,
+        });
+        log("命令执行成功，开始解析输出");
+        return parseEnvVars(output);
+      } catch (error) {
+        const errMsg = error instanceof Error ? error.message : String(error);
+        log(`Windows 命令执行失败: ${errMsg}`);
+        vscode.window.showErrorMessage(`envFileX (Windows): ${errMsg}`);
+        return {};
+      }
+    }
     let scriptContent = resolvedScriptOrPath;
     // 判断是否为现有文件路径（绝对、相对、./、/ 开头，且文件存在）
     const isPath =
@@ -230,6 +258,7 @@ function executeCommandScript(
     try {
       const fullCommand = `"${scriptPath}" ${args.join(" ")}`;
       log(`执行命令: ${fullCommand}`);
+      log(`执行命令: ${scriptContent}`);
       const output = execSync(fullCommand, {
         encoding: "utf8",
         timeout: 10000,
