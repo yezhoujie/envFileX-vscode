@@ -25,6 +25,7 @@ export function activate(context: vscode.ExtensionContext) {
   outputChannel = vscode.window.createOutputChannel("envFileX");
   outputChannel.show(true);
   log("envFileX 扩展已激活");
+  vscode.window.showInformationMessage("envFileX 扩展已激活");
 
   // 注册调试会话工厂
   context.subscriptions.push(
@@ -213,9 +214,12 @@ function executeCommandScript(
           );
         }
         // 拆分 winCommand 以便正确加引号
-        const winCommandParts = winCommand.match(/(?:[^"]\S*|".+?")+/g) || winCommand.split(" ");
+        const winCommandParts =
+          winCommand.match(/(?:[^"]\S*|".+?")+/g) || winCommand.split(" ");
         // const quotedWinCommand = winCommandParts.map(part => part.startsWith('"') ? part : `"${part}"`).join(' ');
-        const fullCommand = `chcp 65001 >nul && ${winCommandParts} ${args.map(arg => `"${arg}"`).join(" ")}`;
+        const fullCommand = `chcp 65001 >nul && ${winCommandParts} ${args
+          .map((arg) => `"${arg}"`)
+          .join(" ")}`;
         log(`Windows 下执行命令 (UTF-8 编码): ${fullCommand}`);
         const output = execSync(fullCommand, {
           encoding: "buffer",
@@ -235,7 +239,9 @@ function executeCommandScript(
           if (Buffer.isBuffer(stdout)) stdout = iconv.decode(stdout, "gbk");
           if (Buffer.isBuffer(stderr)) stderr = iconv.decode(stderr, "gbk");
         }
-        errMsg = `${error instanceof Error ? error.message : String(error)}\nstdout: ${stdout}\nstderr: ${stderr}`;
+        errMsg = `${
+          error instanceof Error ? error.message : String(error)
+        }\nstdout: ${stdout}\nstderr: ${stderr}`;
         log(`Windows 命令执行失败: ${errMsg}`);
         vscode.window.showErrorMessage(`envFileX (Windows): ${errMsg}`);
         return {};

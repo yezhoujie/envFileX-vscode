@@ -6,7 +6,10 @@
 **/*.ts
 .yarnrc
 **/yarn.lock
-node_modules
+# 切勿排除 node_modules，否则插件依赖不会被打包进 .vsix，插件会激活失败！
+# 只排除 devDependencies，请用 npm install --omit=dev 保证 node_modules 只包含运行时依赖
+# node_modules
+// node_modules
 examples/**
 src/**
 .github/**
