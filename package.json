@@ -2,7 +2,7 @@
   "name": "envfilex",
   "displayName": "envFileX",
   "description": "VSCode 插件，支持在 launch.json 中配置环境变量文件并执行自定义脚本",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "publisher": "JayYe",
   "repository": {
     "type": "git",
@@ -10,7 +10,7 @@
   },
   "license": "MIT",
   "engines": {
-    "vscode": "^1.60.0"
+    "vscode": "^1.100.0"
   },
   "categories": [
     "Debuggers",
