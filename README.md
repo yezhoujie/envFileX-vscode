@@ -67,7 +67,7 @@ DEBUG=true
 
 - See `examples/` for Java, Node.js, Python sample code and scripts
 - `decrypt.sh`, `generate_env.sh` are sample env scripts
-- `examples/launchConfig` contains sample VSCode launch.json configurations
+- `examples/launch_config_example` contains sample VSCode launch.json configurations
 
 ## FAQ
 

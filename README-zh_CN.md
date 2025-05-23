@@ -67,7 +67,7 @@ DEBUG=true
 
 - examples/ 目录下包含 Java、Node.js、Python 示例代码和脚本
 - decrypt.sh、generate_env.sh 为环境变量生成/解密脚本
-- examples/launchConfig 文件夹下是 VSCode 的 launch.json 示例配置
+- examples/launch_config_example 文件夹下是 VSCode 的 launch.json 示例配置
 
 ## 常见问题
 
