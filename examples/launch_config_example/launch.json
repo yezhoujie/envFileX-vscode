@@ -28,7 +28,7 @@
         
         // windows
         // windows bat command example
-        //  "command": "cmd.exe /C '${workspaceFolder}\\examples\\decrypt.bat' -f ${envFilexFilePath}",
+        //  "command": "cmd.exe /C ${workspaceFolder}\\examples\\decrypt.bat -f ${envFilexFilePath}",
         //   "envFile": [
         //   "${workspaceFolder}\\examples\\.env.encrypted",
         //   "${workspaceFolder}\\examples\\.env"
