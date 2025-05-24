@@ -95,7 +95,6 @@ npx vsce package
 ## Windows Support
 
 - Fully supports Windows batch (.bat) and PowerShell (.ps1) scripts and executable exe for env decryption/processing.
-- Command line arguments are automatically quoted to avoid syntax errors.
 - Error output is automatically decoded as GBK or UTF-8 to avoid Chinese garbled text.
 - See `examples/decrypt.bat` and `examples/decrypt.ps1` for Windows script samples.
 - Example launch.json configuration for Windows:
@@ -133,7 +132,7 @@ Or use PowerShell:
   }
 }
 ```
-Or user exe: 
+Or use exe: 
 
 ```json
 {

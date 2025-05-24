@@ -90,7 +90,6 @@ npx vsce package
 ## Windows 支持
 
 - 完善支持 Windows 下 .bat 批处理和 PowerShell(.ps1) 脚本以及可执行ext作为解密/处理脚本
-- 命令行参数自动加引号，避免语法错误
 - 错误输出自动尝试 GBK/UTF-8 解码，解决中文乱码
 - 示例脚本见 `examples/decrypt.bat` 和 `examples/decrypt.ps1`
 - Windows 下 launch.json 配置示例：
