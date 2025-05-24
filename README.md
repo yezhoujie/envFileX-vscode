@@ -69,6 +69,23 @@ DEBUG=true
 - `decrypt.sh`, `generate_env.sh` are sample env scripts
 - `examples/launch_config_example` contains sample VSCode launch.json configurations
 
+## How to build
+
+### By manual
+
+```shell
+rm -rf package-lock.json
+npm install --omit=dev
+npm install --no-save typescript
+npm run compile
+npx vsce package
+```
+### Run build.sh
+
+```shell
+./build.sh
+```
+
 ## FAQ
 
 - Python requires 3.9+, specify python path if needed
@@ -90,7 +107,7 @@ DEBUG=true
   "name": "NodeJS Example - Windows .bat",
   "program": "${workspaceFolder}/examples/node/app.js",
   "envFileX": {
-    "command": "${workspaceFolder}\\examples\\decrypt.bat -f ${envFilexFilePath}",
+    "command": "cmd.exe /C ${workspaceFolder}\\examples\\decrypt.bat -f ${envFilexFilePath}",
     "envFile": [
       "${workspaceFolder}\\examples\\.env.encrypted",
       "${workspaceFolder}\\examples\\.env"

@@ -69,6 +69,24 @@ DEBUG=true
 - decrypt.sh、generate_env.sh 为环境变量生成/解密脚本
 - examples/launch_config_example 文件夹下是 VSCode 的 launch.json 示例配置
 
+## 构建
+
+### 手动构建
+
+```shell
+rm -rf package-lock.json
+npm install --omit=dev
+npm install --no-save typescript
+npm run compile
+npx vsce package
+```
+### 使用构建脚本
+
+```shell
+./build.sh
+```
+
+
 ## Windows 支持
 
 - 完善支持 Windows 下 .bat 批处理和 PowerShell(.ps1) 脚本以及可执行ext作为解密/处理脚本
@@ -84,7 +102,7 @@ DEBUG=true
   "name": "NodeJS 示例 - Windows .bat",
   "program": "${workspaceFolder}/examples/node/app.js",
   "envFileX": {
-    "command": "${workspaceFolder}\\examples\\decrypt.bat -f ${envFilexFilePath}",
+    "command": "cmd.exe /C ${workspaceFolder}\\examples\\decrypt.bat -f ${envFilexFilePath}",
     "envFile": [
       "${workspaceFolder}\\examples\\.env.encrypted",
       "${workspaceFolder}\\examples\\.env"
