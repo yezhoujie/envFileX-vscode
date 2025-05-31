@@ -213,11 +213,8 @@ function executeCommandScript(
             envFilexFilePath
           );
         }
-        // 拆分 winCommand 以便正确加引号
-        const winCommandParts =
-          winCommand.match(/(?:[^"]\S*|".+?")+/g) || winCommand.split(" ");
-        // const quotedWinCommand = winCommandParts.map(part => part.startsWith('"') ? part : `"${part}"`).join(' ');
-        const fullCommand = `chcp 65001 >nul && ${winCommandParts} ${args
+        // 直接用 winCommand 字符串，无需拆分数组
+        const fullCommand = `chcp 65001 >nul && ${winCommand} ${args
           .map((arg) => `"${arg}"`)
           .join(" ")}`;
         log(`Windows 下执行命令 (UTF-8 编码): ${fullCommand}`);
