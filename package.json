@@ -2,7 +2,7 @@
   "name": "envfilex",
   "displayName": "envFileX",
   "description": "VSCode 插件，支持在 launch.json 中配置环境变量文件并执行自定义脚本,向调试的程序注入环境变量",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "publisher": "JayYe",
   "repository": {
     "type": "git",

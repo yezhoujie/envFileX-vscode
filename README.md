@@ -80,6 +80,7 @@ npm install --no-save typescript
 npm run compile
 npx vsce package
 ```
+
 ### Run build.sh
 
 ```shell
@@ -132,7 +133,8 @@ Or use PowerShell:
   }
 }
 ```
-Or use exe: 
+
+Or use exe:
 
 ```json
 {
@@ -148,8 +150,15 @@ Or use exe:
     ]
   }
 }
-
 ```
+
+## Notes
+
+**About environment variable hot-reload:**
+
+Due to limitations in VSCode and some debuggers (such as node debugpy), if you modify the contents of environment variable files (e.g., `.env`) during debugging, simply clicking “Restart” will NOT make the extension reload the latest environment variables. In this case, please “Stop” the debugging session first, then “Start” it again to ensure the new environment variables are correctly injected.
+
+Hot-reload support depends on future improvements in the VSCode debugging mechanism. If you have solutions or suggestions, feel free to submit an issue or PR.
 
 ## Contributing
 

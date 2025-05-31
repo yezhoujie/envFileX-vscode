@@ -80,16 +80,16 @@ npm install --no-save typescript
 npm run compile
 npx vsce package
 ```
+
 ### 使用构建脚本
 
 ```shell
 ./build.sh
 ```
 
-
 ## Windows 支持
 
-- 完善支持 Windows 下 .bat 批处理和 PowerShell(.ps1) 脚本以及可执行ext作为解密/处理脚本
+- 完善支持 Windows 下 .bat 批处理和 PowerShell(.ps1) 脚本以及可执行 ext 作为解密/处理脚本
 - 错误输出自动尝试 GBK/UTF-8 解码，解决中文乱码
 - 示例脚本见 `examples/decrypt.bat` 和 `examples/decrypt.ps1`
 - Windows 下 launch.json 配置示例：
@@ -128,7 +128,7 @@ npx vsce package
 }
 ```
 
-或者使用可执行exe程序：
+或者使用可执行 exe 程序：
 
 ```json
 {
@@ -144,8 +144,15 @@ npx vsce package
     ]
   }
 }
-
 ```
+
+## 注意事项
+
+**关于环境变量热重载：**
+
+由于 VSCode 及部分调试器（如 node debugpy）机制限制，如果你在调试过程中修改了环境变量文件中的内容，直接点击“重启（Restart）”无法让插件重新加载最新的环境变量。此时请先“停止（Stop）”调试，再重新启动（Start）调试会话，才能确保新的环境变量被正确注入。
+
+热重载支持，需要等待 VSCode 官方调试机制的改进。如果你有解决方案或建议，欢迎提交 issue 或 PR。
 
 ## 常见问题
 

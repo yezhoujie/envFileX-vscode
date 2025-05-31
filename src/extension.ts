@@ -34,7 +34,7 @@ export function activate(context: vscode.ExtensionContext) {
       new EnvFileXConfigurationProvider()
     ),
     vscode.debug.registerDebugConfigurationProvider(
-      "node",
+      "pwa-node",
       new EnvFileXConfigurationProvider()
     ),
     vscode.debug.registerDebugConfigurationProvider(
