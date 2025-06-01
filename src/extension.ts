@@ -34,13 +34,11 @@ function log(
   }
   // 判断 message 是否为 l10n key，若是则国际化，否则原样输出
   let outputMsg = message;
-  if (message && message.startsWith("envFileX.")) {
-    try {
-      outputMsg = vscode.l10n.t(message, ...(l10nArgs || []));
-    } catch {
-      // 若 key 不存在则降级为原文
-      outputMsg = message;
-    }
+  try {
+    outputMsg = vscode.l10n.t(message, ...(l10nArgs || []));
+  } catch {
+    // 若 key 不存在则降级为原文
+    outputMsg = message;
   }
   outputChannel.appendLine(`${icon}${prefix} [${timestamp}] ${outputMsg}`);
   // 终端彩色输出
@@ -62,8 +60,10 @@ export function activate(context: vscode.ExtensionContext) {
   outputChannel = vscode.window.createOutputChannel("envFileX");
   outputChannel.show(true);
 
-  log("envFileX.log.activated");
-  vscode.window.showInformationMessage(vscode.l10n.t("envFileX.log.activated"));
+  log("envFileX extension activated.");
+  vscode.window.showInformationMessage(
+    vscode.l10n.t("envFileX extension activated.")
+  );
 
   // 注册调试会话工厂
   context.subscriptions.push(
@@ -98,22 +98,27 @@ class EnvFileXConfigurationProvider
   ): Promise<vscode.DebugConfiguration> {
     // vscode自带的envFile 和 envFileX 配置 同时存在
     if (config.envFile && config.envFileX) {
-      log("envFileX.warning.envFileAndEnvFileX", "warn");
+      log(
+        "[envFileX] Detected both 'envFile' and 'envFileX' in launch.json. The final environment variables may be overridden. It is recommended to keep only 'envFileX' to avoid unexpected conflicts.",
+        "warn"
+      );
       vscode.window.showWarningMessage(
-        vscode.l10n.t("envFileX.warning.envFileAndEnvFileX")
+        vscode.l10n.t(
+          "[envFileX] Detected both 'envFile' and 'envFileX' in launch.json. The final environment variables may be overridden. It is recommended to keep only 'envFileX' to avoid unexpected conflicts."
+        )
       );
     }
     if (!config.envFileX) {
       return config;
     }
-    log("envFileX.log.splitLine");
-    log("envFileX.log.startProcess", "info", [config.name]);
+    log("-------------[envFileX]-------------");
+    log("Start processing debug configuration: {0}", "info", [config.name]);
     try {
       const envFileXConfig = config.envFileX as {
         envFile?: string | string[];
         command?: string;
       };
-      log("envFileX.log.config", "info", [JSON.stringify(envFileXConfig)]);
+      log("envFileX config: {0}", "info", [JSON.stringify(envFileXConfig)]);
       // 统一 envFile 为数组
       let envFiles: string[] = [];
       if (Array.isArray(envFileXConfig.envFile)) {
@@ -128,27 +133,29 @@ class EnvFileXConfigurationProvider
         .map((f) => resolveVariables(f, folder))
         .filter(Boolean);
       const commandScript = envFileXConfig.command || "";
-      log("envFileX.log.envFilesParsed", "info", [
+      log("Parsed envFiles: {0}, Has command script: {1}", "info", [
         JSON.stringify(envFiles),
-        commandScript ? "是" : "否",
+        commandScript ? "yes" : "no",
       ]);
       log("\n");
       let envVars: Record<string, string> = {};
       if (envFiles.length === 0 && !commandScript) {
-        log("envFileX.log.noCommandNoEnvFile");
+        log("Neither command nor envFile configured, skipping.");
       } else if (envFiles.length === 0 && commandScript) {
         // 只有 command
-        log("envFileX.log.onlyScript");
+        log("Only executing script content.");
         envVars = executeCommandScript(commandScript, [], undefined, folder);
-        log("envFileX.log.scriptVars", "info", [Object.keys(envVars).length]);
+        log("Script executed, got {0} environment variables.", "info", [
+          Object.keys(envVars).length,
+        ]);
       } else if (envFiles.length > 0 && !commandScript) {
         // 只有 envFile，合并所有 env 文件，后者覆盖前者
         for (const file of envFiles) {
-          log("envFileX.log.readEnvFile", "info", [file]);
+          log("Reading env file: {0}", "info", [file]);
           const vars = readEnvFile(file);
           envVars = { ...envVars, ...vars };
         }
-        log("envFileX.log.mergeEnvFiles", "info", [
+        log("Merged {0} env files, total {1} environment variables.", "info", [
           envFiles.length,
           Object.keys(envVars).length,
         ]);
@@ -158,18 +165,20 @@ class EnvFileXConfigurationProvider
           const vars = executeCommandScript(commandScript, [], file, folder);
           envVars = { ...envVars, ...vars };
         }
-        log("envFileX.log.envAndScriptVars", "info", [
-          Object.keys(envVars).length,
-        ]);
+        log(
+          "All envFile+command executed, total {0} environment variables.",
+          "info",
+          [Object.keys(envVars).length]
+        );
       }
       config.env = { ...config.env, ...envVars };
       const envKeys = Object.keys(envVars);
-      log("envFileX.log.injected", "info", [envKeys.join(", ")]);
+      log("Injected environment variables: {0}", "info", [envKeys.join(", ")]);
       log("\n\n");
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : String(error);
-      log("envFileX.log.error", "error", [errorMessage]);
+      log("Error: {0}", "error", [errorMessage]);
       vscode.window.showErrorMessage(`envFileX: ${errorMessage}`);
     }
     return config;
@@ -212,17 +221,15 @@ function resolveVariables(
 function readEnvFile(filePath: string): Record<string, string> {
   try {
     if (!fs.existsSync(filePath)) {
-      throw new Error(
-        vscode.l10n.t("envFileX.error.envFileNotExist", filePath)
-      );
+      throw new Error(vscode.l10n.t("Env file does not exist: {0}", filePath));
     }
-    log("envFileX.log.readFileContent", "info", [filePath]);
+    log("Reading file content: {0}", "info", [filePath]);
     const content = fs.readFileSync(filePath, "utf8");
     return parseEnvVars(content);
   } catch (error) {
     throw new Error(
       vscode.l10n.t(
-        "envFileX.error.readEnvFile",
+        "Failed to read env file: {0}",
         error instanceof Error ? error.message : String(error)
       )
     );
@@ -243,7 +250,6 @@ function executeCommandScript(
   folder?: vscode.WorkspaceFolder
 ): Record<string, string> {
   try {
-    log(`准备执行脚本内容或脚本路径`);
     // 先做变量替换，支持 VSCode 占位符
     let resolvedScriptOrPath = resolveVariables(scriptOrPath, folder);
     // Windows 平台特殊处理
@@ -284,7 +290,7 @@ function executeCommandScript(
         errMsg = `${
           error instanceof Error ? error.message : String(error)
         }\nstdout: ${stdout}\nstderr: ${stderr}`;
-        log("envFileX.log.winCmdFail", "error", [errMsg]);
+        log("Windows command failed: {0}", "error", [errMsg]);
         vscode.window.showErrorMessage(`envFileX (Windows): ${errMsg}`);
         return {};
       }
@@ -299,7 +305,7 @@ function executeCommandScript(
       fs.existsSync(path.resolve(resolvedScriptOrPath));
     if (isPath) {
       const absPath = path.resolve(resolvedScriptOrPath);
-      log("envFileX.log.cmdPath", "info", [absPath]);
+      log("Command recognized as script path: {0}", "info", [absPath]);
       scriptContent = fs.readFileSync(absPath, "utf8");
     }
     // 替换占位符
@@ -320,20 +326,19 @@ function executeCommandScript(
     try {
       const fullCommand = `"${scriptPath}" ${args.join(" ")}`;
       // log(`执行命令: ${fullCommand}`);
-      log("envFileX.log.execCmd", "info", [scriptContent]);
+      log("Executing command: {0}", "info", [scriptContent]);
       const output = execSync(fullCommand, {
         encoding: "utf8",
         timeout: 10000,
       });
-      log("envFileX.log.scriptSuccess");
-      log(`脚本执行成功，开始解析输出`);
+      log("Script executed successfully, parsing output.");
       return parseEnvVars(output);
     } finally {
       try {
         fs.unlinkSync(scriptPath);
         // log(`删除临时脚本文件: ${scriptPath}`);
       } catch (error) {
-        log("envFileX.log.rmTmpFail", "error", [
+        log("Failed to remove temp script file: {0}", "error", [
           error instanceof Error ? error.message : String(error),
         ]);
       }
@@ -381,11 +386,17 @@ function parseEnvVars(content: string): Record<string, string> {
       envVars[key] = value;
       validLineCount++;
     } else {
-      log("envFileX.log.invalidLine", "warn", [lineCount, trimmedLine]);
+      log("Line {0} is not in KEY=VALUE format: {1}", "warn", [
+        lineCount,
+        trimmedLine,
+      ]);
     }
   }
 
-  log("envFileX.log.parseResult", "info", [lineCount, validLineCount]);
+  log("Parsed {0} lines, found {1} valid environment variables.", "info", [
+    lineCount,
+    validLineCount,
+  ]);
   log("\n");
   return envVars;
 }
@@ -394,6 +405,6 @@ function parseEnvVars(content: string): Record<string, string> {
  * 停用扩展时调用
  */
 export function deactivate() {
-  log("envFileX.log.deactivate");
+  log("envFileX extension deactivated.");
   outputChannel.dispose();
 }
