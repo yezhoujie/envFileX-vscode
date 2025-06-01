@@ -26,5 +26,7 @@
   "envFileX extension deactivated.": "envFileX extension deactivated.",
   "envFileX extension activated.": "envFileX extension activated.",
   "yes": "yes",
-  "no": "no"
+  "no": "no",
+  "Detected Windows platform, executing command directly":"Detected Windows platform, executing command directly",
+  "Executing command on Windows (UTF-8 encoding):{0}":"Executing command on Windows (UTF-8 encoding):{0}"
 }

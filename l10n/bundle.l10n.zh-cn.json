@@ -26,5 +26,7 @@
   "envFileX extension deactivated.": "envFileX 扩展已停用。",
   "envFileX extension activated.": "envFileX 扩展已激活。",
   "yes": "有",
-  "no": "无"
+  "no": "无",
+  "Detected Windows platform, executing command directly":"检测到 Windows 平台，直接执行 command",
+  "Executing command on Windows (UTF-8 encoding):{0}":"在 Windows 上执行命令 (UTF-8 编码):{0}"
 }

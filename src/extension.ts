@@ -254,7 +254,7 @@ function executeCommandScript(
     let resolvedScriptOrPath = resolveVariables(scriptOrPath, folder);
     // Windows 平台特殊处理
     if (process.platform === "win32") {
-      log("检测到 Windows 平台，直接执行 command");
+      log("Detected Windows platform, executing command directly");
       try {
         // 支持 ${envFilexFilePath} 占位符
         let winCommand = resolvedScriptOrPath;
@@ -268,12 +268,14 @@ function executeCommandScript(
         const fullCommand = `chcp 65001 >nul && ${winCommand} ${args
           .map((arg) => `"${arg}"`)
           .join(" ")}`;
-        log(`Windows 下执行命令 (UTF-8 编码): ${fullCommand}`);
+          //Executing command on Windows (UTF-8 encoding):{0}
+        log(`Executing command on Windows (UTF-8 encoding):{0}`, "info", [
+          fullCommand]);
         const output = execSync(fullCommand, {
           encoding: "buffer",
           timeout: 10000,
         });
-        log("命令执行成功，开始解析输出");
+        log("Script executed successfully, parsing output.");
         return parseEnvVars(output.toString("utf8"));
       } catch (error) {
         // --- 关键：优先用 GBK 解码错误输出 ---
