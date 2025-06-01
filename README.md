@@ -154,11 +154,17 @@ Or use exe:
 
 ## Notes
 
-**About environment variable hot-reload:**
+### About environment variable hot-reload:
 
 Due to limitations in VSCode and some debuggers (such as node debugpy), if you modify the contents of environment variable files (e.g., `.env`) during debugging, simply clicking “Restart” will NOT make the extension reload the latest environment variables. In this case, please “Stop” the debugging session first, then “Start” it again to ensure the new environment variables are correctly injected.
 
 Hot-reload support depends on future improvements in the VSCode debugging mechanism. If you have solutions or suggestions, feel free to submit an issue or PR.
+
+---
+
+### ⚠️ Warning: Do not use both `envFile` (VSCode built-in) and `envFileX` together
+
+> If you configure both the VSCode built-in `envFile` (at the root of your debug configuration) and `envFileX` in your launch.json, the final environment variables may be overridden or behave unexpectedly. This is because different language debuggers (Node.js, Java, Python, etc.) load environment variables in different ways, and the order of loading is not guaranteed. We strongly recommend using only `envFileX` for advanced and predictable environment variable injection. Remove the root-level `envFile` field to avoid conflicts.
 
 ## Contributing
 

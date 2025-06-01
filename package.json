@@ -2,15 +2,16 @@
   "name": "envfilex",
   "displayName": "envFileX",
   "description": "VSCode 插件，支持在 launch.json 中配置环境变量文件并执行自定义脚本,向调试的程序注入环境变量",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "publisher": "JayYe",
+  "l10n": "./l10n",
   "repository": {
     "type": "git",
     "url": "https://github.com/yezhoujie/envFileX-vscode"
   },
   "license": "MIT",
   "engines": {
-    "vscode": "^1.100.0"
+    "vscode": "^1.78.0"
   },
   "categories": [
     "Debuggers",
@@ -151,9 +152,10 @@
     "@types/glob": "^7.1.4",
     "@types/mocha": "^9.0.0",
     "@types/node": "14.x",
-    "@types/vscode": "^1.100.0",
+    "@types/vscode": "^1.78.0",
     "@typescript-eslint/eslint-plugin": "^5.1.0",
     "@typescript-eslint/parser": "^5.1.0",
+    "@vscode/l10n-dev": "^0.0.35",
     "@vscode/test-electron": "^1.6.2",
     "eslint": "^8.1.0",
     "glob": "^7.1.7",

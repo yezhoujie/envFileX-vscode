@@ -9,12 +9,49 @@ import * as iconv from "iconv-lite"; // 新增：引入 iconv-lite 以支持 GBK
 let outputChannel: vscode.OutputChannel;
 
 /**
- * 日志输出函数
+ * 日志输出函数，支持分级和国际化
+ * @param message 日志内容（可为 l10n key 或普通字符串）
+ * @param level 日志级别 info/warn/error，默认info
+ * @param l10nArgs 国际化参数（可选）
  */
-function log(message: string) {
+function log(
+  message: string,
+  level: "info" | "warn" | "error" = "info",
+  l10nArgs?: any[]
+) {
   const timestamp = new Date().toISOString();
-  outputChannel.appendLine(`[${timestamp}] ${message}`);
-  console.log(`[envFileX] ${message}`);
+  let prefix = "[INFO ]";
+  let color = "\x1b[32m"; // 绿色
+  let icon = "";
+  if (level === "warn") {
+    prefix = "[WARN ]";
+    color = "\x1b[33m"; // 黄色
+    icon = "⚠️ ";
+  } else if (level === "error") {
+    prefix = "[ERROR]";
+    color = "\x1b[31m"; // 红色
+    icon = "❌ ";
+  }
+  // 判断 message 是否为 l10n key，若是则国际化，否则原样输出
+  let outputMsg = message;
+  if (message && message.startsWith("envFileX.")) {
+    try {
+      outputMsg = vscode.l10n.t(message, ...(l10nArgs || []));
+    } catch {
+      // 若 key 不存在则降级为原文
+      outputMsg = message;
+    }
+  }
+  outputChannel.appendLine(`${icon}${prefix} [${timestamp}] ${outputMsg}`);
+  // 终端彩色输出
+  if (level === "info") {
+    console.log(`${color}[envFileX]${prefix}\x1b[0m ${outputMsg}`);
+  } else if (level === "warn") {
+    // 用 console.log 保证黄色生效
+    console.log(`${color}[envFileX]${prefix}${icon}\x1b[0m ${outputMsg}`);
+  } else if (level === "error") {
+    console.error(`${color}[envFileX]${prefix}${icon}\x1b[0m ${outputMsg}`);
+  }
 }
 
 /**
@@ -24,8 +61,9 @@ export function activate(context: vscode.ExtensionContext) {
   // 创建输出通道
   outputChannel = vscode.window.createOutputChannel("envFileX");
   outputChannel.show(true);
-  log("envFileX 扩展已激活");
-  vscode.window.showInformationMessage("envFileX 扩展已激活");
+
+  log("envFileX.log.activated");
+  vscode.window.showInformationMessage(vscode.l10n.t("envFileX.log.activated"));
 
   // 注册调试会话工厂
   context.subscriptions.push(
@@ -58,16 +96,24 @@ class EnvFileXConfigurationProvider
     config: vscode.DebugConfiguration,
     token?: vscode.CancellationToken
   ): Promise<vscode.DebugConfiguration> {
+    // vscode自带的envFile 和 envFileX 配置 同时存在
+    if (config.envFile && config.envFileX) {
+      log("envFileX.warning.envFileAndEnvFileX", "warn");
+      vscode.window.showWarningMessage(
+        vscode.l10n.t("envFileX.warning.envFileAndEnvFileX")
+      );
+    }
     if (!config.envFileX) {
       return config;
     }
-    log(`开始处理调试配置: ${config.name}`);
+    log("envFileX.log.splitLine");
+    log("envFileX.log.startProcess", "info", [config.name]);
     try {
       const envFileXConfig = config.envFileX as {
         envFile?: string | string[];
         command?: string;
       };
-      log(`envFileX 配置: ${JSON.stringify(envFileXConfig)}`);
+      log("envFileX.log.config", "info", [JSON.stringify(envFileXConfig)]);
       // 统一 envFile 为数组
       let envFiles: string[] = [];
       if (Array.isArray(envFileXConfig.envFile)) {
@@ -82,51 +128,48 @@ class EnvFileXConfigurationProvider
         .map((f) => resolveVariables(f, folder))
         .filter(Boolean);
       const commandScript = envFileXConfig.command || "";
-      log(
-        `解析后的 envFiles: ${JSON.stringify(envFiles)}, 有无命令脚本: ${
-          commandScript ? "是" : "否"
-        }`
-      );
+      log("envFileX.log.envFilesParsed", "info", [
+        JSON.stringify(envFiles),
+        commandScript ? "是" : "否",
+      ]);
+      log("\n");
       let envVars: Record<string, string> = {};
       if (envFiles.length === 0 && !commandScript) {
-        log("未配置 command 和 envFile，不进行操作");
+        log("envFileX.log.noCommandNoEnvFile");
       } else if (envFiles.length === 0 && commandScript) {
         // 只有 command
-        log(`仅执行脚本内容`);
+        log("envFileX.log.onlyScript");
         envVars = executeCommandScript(commandScript, [], undefined, folder);
-        log(`脚本执行成功，获取到 ${Object.keys(envVars).length} 个环境变量`);
+        log("envFileX.log.scriptVars", "info", [Object.keys(envVars).length]);
       } else if (envFiles.length > 0 && !commandScript) {
         // 只有 envFile，合并所有 env 文件，后者覆盖前者
         for (const file of envFiles) {
-          log(`读取环境变量文件: ${file}`);
+          log("envFileX.log.readEnvFile", "info", [file]);
           const vars = readEnvFile(file);
           envVars = { ...envVars, ...vars };
         }
-        log(
-          `成功合并 ${envFiles.length} 个 env 文件，最终 ${
-            Object.keys(envVars).length
-          } 个环境变量`
-        );
+        log("envFileX.log.mergeEnvFiles", "info", [
+          envFiles.length,
+          Object.keys(envVars).length,
+        ]);
       } else if (envFiles.length > 0 && commandScript) {
         // envFile 和 command 都有值，每个 envFile 用 command 执行，command 中用 ${envFilexFilePath} 占位符
         for (const file of envFiles) {
           const vars = executeCommandScript(commandScript, [], file, folder);
           envVars = { ...envVars, ...vars };
         }
-        log(
-          `所有 envFile+command 执行完毕，最终 ${
-            Object.keys(envVars).length
-          } 个环境变量`
-        );
+        log("envFileX.log.envAndScriptVars", "info", [
+          Object.keys(envVars).length,
+        ]);
       }
       config.env = { ...config.env, ...envVars };
       const envKeys = Object.keys(envVars);
-      log(`成功注入环境变量: ${envKeys.join(", ")}`);
+      log("envFileX.log.injected", "info", [envKeys.join(", ")]);
+      log("\n\n");
     } catch (error) {
-      const errorMessage = `错误: ${
-        error instanceof Error ? error.message : String(error)
-      }`;
-      log(errorMessage);
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      log("envFileX.log.error", "error", [errorMessage]);
       vscode.window.showErrorMessage(`envFileX: ${errorMessage}`);
     }
     return config;
@@ -169,17 +212,19 @@ function resolveVariables(
 function readEnvFile(filePath: string): Record<string, string> {
   try {
     if (!fs.existsSync(filePath)) {
-      throw new Error(`环境变量文件不存在: ${filePath}`);
+      throw new Error(
+        vscode.l10n.t("envFileX.error.envFileNotExist", filePath)
+      );
     }
-
-    log(`读取文件内容: ${filePath}`);
+    log("envFileX.log.readFileContent", "info", [filePath]);
     const content = fs.readFileSync(filePath, "utf8");
     return parseEnvVars(content);
   } catch (error) {
     throw new Error(
-      `无法读取环境变量文件: ${
+      vscode.l10n.t(
+        "envFileX.error.readEnvFile",
         error instanceof Error ? error.message : String(error)
-      }`
+      )
     );
   }
 }
@@ -239,7 +284,7 @@ function executeCommandScript(
         errMsg = `${
           error instanceof Error ? error.message : String(error)
         }\nstdout: ${stdout}\nstderr: ${stderr}`;
-        log(`Windows 命令执行失败: ${errMsg}`);
+        log("envFileX.log.winCmdFail", "error", [errMsg]);
         vscode.window.showErrorMessage(`envFileX (Windows): ${errMsg}`);
         return {};
       }
@@ -254,7 +299,7 @@ function executeCommandScript(
       fs.existsSync(path.resolve(resolvedScriptOrPath));
     if (isPath) {
       const absPath = path.resolve(resolvedScriptOrPath);
-      log(`command 被识别为脚本路径: ${absPath}`);
+      log("envFileX.log.cmdPath", "info", [absPath]);
       scriptContent = fs.readFileSync(absPath, "utf8");
     }
     // 替换占位符
@@ -271,27 +316,26 @@ function executeCommandScript(
       .slice(2)}.sh`;
     const scriptPath = path.join(tmpDir, scriptFileName);
     fs.writeFileSync(scriptPath, scriptContent, { mode: 0o755 });
-    log(`创建临时脚本文件: ${scriptPath}`);
+    // log(`创建临时脚本文件: ${scriptPath}`);
     try {
       const fullCommand = `"${scriptPath}" ${args.join(" ")}`;
-      log(`执行命令: ${fullCommand}`);
-      log(`执行命令: ${scriptContent}`);
+      // log(`执行命令: ${fullCommand}`);
+      log("envFileX.log.execCmd", "info", [scriptContent]);
       const output = execSync(fullCommand, {
         encoding: "utf8",
         timeout: 10000,
       });
+      log("envFileX.log.scriptSuccess");
       log(`脚本执行成功，开始解析输出`);
       return parseEnvVars(output);
     } finally {
       try {
         fs.unlinkSync(scriptPath);
-        log(`删除临时脚本文件: ${scriptPath}`);
+        // log(`删除临时脚本文件: ${scriptPath}`);
       } catch (error) {
-        log(
-          `删除临时脚本文件失败: ${
-            error instanceof Error ? error.message : String(error)
-          }`
-        );
+        log("envFileX.log.rmTmpFail", "error", [
+          error instanceof Error ? error.message : String(error),
+        ]);
       }
     }
   } catch (error) {
@@ -337,11 +381,12 @@ function parseEnvVars(content: string): Record<string, string> {
       envVars[key] = value;
       validLineCount++;
     } else {
-      log(`警告: 第 ${lineCount} 行不符合 KEY=VALUE 格式: ${trimmedLine}`);
+      log("envFileX.log.invalidLine", "warn", [lineCount, trimmedLine]);
     }
   }
 
-  log(`解析了 ${lineCount} 行，找到 ${validLineCount} 个有效的环境变量`);
+  log("envFileX.log.parseResult", "info", [lineCount, validLineCount]);
+  log("\n");
   return envVars;
 }
 
@@ -349,6 +394,6 @@ function parseEnvVars(content: string): Record<string, string> {
  * 停用扩展时调用
  */
 export function deactivate() {
-  log("envFileX 扩展已停用");
+  log("envFileX.log.deactivate");
   outputChannel.dispose();
 }
